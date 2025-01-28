@@ -1,0 +1,35 @@
+name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the main branch
+  pull_request:  # Also analyze pull requests
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Checkout the repository code
+
+      - name: Set up Java (required for SonarScanner)
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+
+      - name: Run SonarQube Scanner
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # GitHub Secret storing your SonarQube token
+        run: |
+          # Download and extract SonarScanner
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-<version>-linux.zip
+          unzip sonar-scanner-cli-<version>-linux.zip
+          
+          # Run SonarScanner
+          ./sonar-scanner-<version>-linux/bin/sonar-scanner \
+            -Dsonar.projectKey=<your-project-key> \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=https://<your-sonarqube-url> \
+            -Dsonar.login=$SONAR_TOKEN
